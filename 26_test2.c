@@ -304,16 +304,17 @@ int find_max(struct Node *p)
 
 int count_digits(int max)
 {
-	int count = 0;
-	while (max > 1)
-	{
-		count++;
-		max /= 10;
-	}
-	return count;
+    int count = 0;
+    if (max == 0) return 1;
+    while (max > 0)
+    {
+        count++;
+        max /= 10;
+    }
+    return count;
 }
 
-/*
+
 int count_size(struct Node *a)
 {
 	int count = 0;
@@ -324,40 +325,44 @@ int count_size(struct Node *a)
 	}
 	return count + 1;
 }
-*/
 
-void radix(struct Node **sa, struct Node **sb)
+
+int get_digit(int num, int position) {
+    // Return the digit at the given position (0-based)
+    // position = 0 for least significant digit, 1 for next, and so on.
+    for(int i = 0; i < position; i++) {
+        num /= 10;
+    }
+    return num % 10;
+}
+
+void radix(struct Node **sa, struct Node *sb[10])
 {
-	int max = find_max(*sa);
-	printf("Max: %d\n", max);
-
-	int count = count_digits(max);
-	printf("Digits: %d\n", count);
-
-	int div = 1;
-	int i = 0;
-	int digit;
-	while (i < count)
-	{
-		while (*sa != NULL)
+    int max = find_max(*sa);
+    int digits = count_digits(max);
+    
+    for (int position = 0; position < digits; position++) {
+        printf("\nPosition: %d\n", position); // Debug
+        
+        // Distribute numbers into digit buckets (using stack sb)
+        while (*sa != NULL) {
+            int number = pop(sa)->data;
+            int digit = get_digit(number, position);
+            printf("Distributing %d to bucket %d\n", number, digit); // Debug
+            push(&sb[digit], number); // Push onto sb (bucket stack)
+        }
+        
+        // Collect numbers from buckets and push back to stack a
+        for (int i = 9; i >= 0; i--) 
 		{
-			digit = ((*sa)->data / div) % 10;
-			if (digit == i)
+    		while (sb[i] != NULL)
 			{
-				pb(sa, sb);
-			}
-			else 
-			{
-				ra(sa);
-			}
+        		int number = pop(&sb[i])->data;
+        		printf("Collecting %d from bucket %d\n", number, i); // Debug
+        		push(sa, number);
+    		}
 		}
-		while (*sb != NULL) 
-		{
-			pa(sb, sa);
-		}
-        div *= 10;
-		i++;
-	}
+    }
 }
 
 int main(int argc, char **argv)
@@ -368,11 +373,11 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	struct Node *stack_a = NULL;
-	struct Node *stack_b = NULL;
 	int error = 0;
 
 	long x;
 	int i = 1;
+
 	while (i < argc)
 	{
 		x = ft_atoi(argv[i], &error);
@@ -385,9 +390,13 @@ int main(int argc, char **argv)
 		i++;
 	}
 
+	int size = count_size(stack_a); 
+
+	struct Node *stack_b[10] = {NULL}; // Initialize an array of 10 stack pointers, all NULL
+
 	display(stack_a);
 
-	radix(&stack_a, &stack_b);
+	radix(&stack_a, stack_b);
 
 	display(stack_a);
 
