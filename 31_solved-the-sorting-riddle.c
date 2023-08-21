@@ -388,6 +388,261 @@ int check_if_sorted(struct Node *s)
 	return 1;
 }
 
+int check_if_reverse_sorted(struct Node *s)
+{
+	while (s != NULL && s->next != NULL)
+	{
+		if (s->next->data > s->data)
+		{
+			return 0;
+		}
+		s = s->next;
+	}
+	return 1;
+}
+
+int position_minimum(struct Node *p, int min)
+{
+	int index = 0;
+	while (p != NULL)
+	{
+		if (min == p->data)
+		{
+			return index;
+		}
+		index++;
+		p = p->next;
+	}
+	return -1;
+}
+
+int position_maximum(struct Node *p, int max)
+{
+	int index = 0;
+	while (p != NULL)
+	{
+		if (max == p->data)
+		{
+			return index;
+		}
+		index++;
+		p = p->next;
+	}
+	return -1;
+}
+
+
+
+void sort_size_three(struct Node **stack_a)
+{
+	// Case 3 1 2
+	if ((*stack_a)->data > (*stack_a)->next->next->data && (*stack_a)->next->data < (*stack_a)->next->next->data)
+	{
+		ra(stack_a);
+		printf("ra\n");
+	}
+	// Case 2 1 3
+	else if ((*stack_a)->data > (*stack_a)->next->data && (*stack_a)->data < (*stack_a)->next->next->data)
+	{
+		sa(stack_a);
+		printf("sa\n");
+	}
+	// Case 1 3 2
+	else if ((*stack_a)->data < (*stack_a)->next->next->data && (*stack_a)->next->data > (*stack_a)->next->next->data)
+	{
+		sa(stack_a);
+		ra(stack_a);
+		printf("sa\n");
+		printf("ra\n");
+	}
+	// Case 2 3 1
+	else if ((*stack_a)->data > (*stack_a)->next->next->data && (*stack_a)->next->data > (*stack_a)->data)
+	{
+		rra(stack_a);
+		printf("rra\n");
+	}
+	// Case 3 2 1
+	else if ((*stack_a)->data > (*stack_a)->next->data && (*stack_a)->next->data > (*stack_a)->next->next->data)
+	{
+		sa(stack_a);
+		rra(stack_a);
+		printf("sa\n");
+		printf("rra\n");
+	}
+}
+
+void sort_size_four(struct Node **stack_a, struct Node **stack_b, int size)
+{
+	int min = find_min(*stack_a);
+	int pos = position_minimum(*stack_a, min);
+	// printf("Min: %d\n", min);
+	// printf("Position: %d\n", pos);
+	if (pos == 3)
+	{
+		while (1)
+		{
+			if ((*stack_a)->data == min)
+			{
+				pb(stack_a, stack_b);
+				printf("pb\n");
+				break;
+			}
+			rra(stack_a);
+			printf("rra\n");
+		}
+	}
+	else
+	{
+		while (1)
+		{
+			if ((*stack_a)->data == min)
+			{
+				pb(stack_a, stack_b);
+				printf("pb\n");
+				break;
+			}
+			ra(stack_a);
+			printf("ra\n");
+		}
+	}
+	size--;
+	sort_size_three(stack_a);
+	pa(stack_a, stack_b);
+	printf("pa\n");
+}
+
+void sort_size_five(struct Node **stack_a, struct Node **stack_b, int size)
+{
+	int min = find_min(*stack_a);
+	int pos = position_minimum(*stack_a, min);
+	// printf("Min: %d\n", min);
+	// printf("Position: %d\n", pos);
+	if (pos == 3 || pos == 4)
+	{
+		while (1)
+		{
+			if ((*stack_a)->data == min)
+			{
+				pb(stack_a, stack_b);
+				printf("pb\n");
+				break;
+			}
+			rra(stack_a);
+			printf("rra\n");
+		}
+	}
+	else
+	{
+		while (1)
+		{
+			if ((*stack_a)->data == min)
+			{
+				pb(stack_a, stack_b);
+				printf("pb\n");
+				break;
+			}
+			ra(stack_a);
+			printf("ra\n");
+		}
+	}
+	size--;
+	sort_size_four(stack_a, stack_b, size);
+	pa(stack_a, stack_b);
+	printf("pa\n");
+}
+
+void sort_size_other(struct Node **stack_a, struct Node **stack_b)
+{
+	struct Node *a_first = NULL;
+	struct Node *a_second = NULL;
+	struct Node *a_last = NULL;
+	struct Node *temp_a = NULL;
+
+	struct Node *b_first = NULL;
+	struct Node *b_second = NULL;
+	struct Node *b_last = NULL;
+	struct Node *temp_b = NULL;
+
+	while (1)
+	{
+		temp_a = *stack_a;
+		temp_b = *stack_b;
+
+		a_first = temp_a;
+		if (temp_a)
+			a_second = temp_a->next;
+		else
+			a_second = NULL;
+
+		b_first = temp_b;
+
+		if (temp_b)
+			b_second = temp_b->next;
+		else
+			b_second = NULL;
+
+		while (temp_a && temp_a->next)
+		{
+			temp_a = temp_a->next;
+		}
+		a_last = temp_a;
+
+		while (temp_b && temp_b->next)
+		{
+			temp_b = temp_b->next;
+		}
+		b_last = temp_b;
+
+		// Exit condition - might need further refinement
+		if ((check_if_sorted(*stack_a) && check_if_reverse_sorted(*stack_b)) ||
+			(check_if_sorted(*stack_a) && !temp_b))
+		{
+			break;
+		}
+		if (b_first && b_last && b_first->data < b_last->data)
+		{
+			rb(stack_b);
+			printf("rb\n");
+			continue;
+		}
+		if (b_first && b_second && b_first->data < b_second->data)
+		{
+			sb(stack_b);
+			printf("sb\n");
+			continue;
+		}
+		if (a_first && a_last && a_first->data > a_last->data)
+		{
+			ra(stack_a);
+			printf("ra\n");
+			continue;
+		}
+		if (a_first && a_second && a_first->data > a_second->data)
+		{
+			sa(stack_a);
+			printf("sa\n");
+			continue;
+		}
+		if (a_first && a_second && a_first->data < a_second->data)
+		{
+			pb(stack_a, stack_b);
+			printf("pb\n");
+			continue;
+		}
+		if (a_first && b_first && a_first->data > b_first->data)
+		{
+			pa(stack_a, stack_b);
+			printf("pa\n");
+			continue;
+		}
+	}
+	while (*stack_b)
+	{
+		pa(stack_a, stack_b);
+		printf("pa\n");
+	}
+}
+
 void push_swap(struct Node **stack_a, struct Node **stack_b)
 {
 	int size = count_size(*stack_a);
@@ -396,7 +651,6 @@ void push_swap(struct Node **stack_a, struct Node **stack_b)
 		// printf("Already sorted.\n");
 		return;
 	}
-
 	if (size <= 1)
 	{
 		return;
@@ -412,110 +666,19 @@ void push_swap(struct Node **stack_a, struct Node **stack_b)
 	}
 	if (size == 3)
 	{
-		// Case 3 1 2
-		if ((*stack_a)->data > (*stack_a)->next->next->data 
-			&& (*stack_a)->next->data < (*stack_a)->next->next->data)
-		{
-			ra(stack_a);
-			printf("ra\n");
-			return;
-		}
-		// Case 2 1 3
-		if ((*stack_a)->data > (*stack_a)->next->data 
-			&& (*stack_a)->data < (*stack_a)->next->next->data)
-		{
-			sa(stack_a);
-			printf("sa\n");
-			return;
-		}
-		// Case 1 3 2
-		if ((*stack_a)->data < (*stack_a)->next->next->data 
-			&& (*stack_a)->next->data > (*stack_a)->next->next->data)
-		{
-			sa(stack_a);
-			ra(stack_a);
-			printf("sa\n");
-			printf("ra\n");
-			return;
-		}
-		// Case 2 3 1
-		if ((*stack_a)->data > (*stack_a)->next->next->data 
-			&& (*stack_a)->next->data > (*stack_a)->data)
-		{
-			rra(stack_a);
-			printf("rra\n");
-			return;
-		}
-		// Case 3 2 1
-		if ((*stack_a)->data > (*stack_a)->next->data 
-			&& (*stack_a)->next->data > (*stack_a)->next->next->data)
-		{
-			sa(stack_a);
-			rra(stack_a);
-			printf("sa\n");
-			printf("rra\n");
-			return;
-		}
+		sort_size_three(stack_a);
 	}
 	if (size == 4)
 	{
-		int min = find_min(*stack_a); 
-		printf("Min: %d\n", min);
-
-		while ((*stack_a)->next != NULL)
-		{
-			if ((*stack_a)->data == min)
-			{
-				pb(stack_a, stack_b);
-				printf("pb\n"); 
-			}
-			*stack_a = (*stack_a)->next; 
-		}
-		size = 3;
-		if (size == 3)
-		{
-			// Case 3 1 2
-			if ((*stack_a)->data > (*stack_a)->next->next->data && (*stack_a)->next->data < (*stack_a)->next->next->data)
-			{
-				ra(stack_a);
-				printf("ra\n");
-				return;
-			}
-			// Case 2 1 3
-			if ((*stack_a)->data > (*stack_a)->next->data && (*stack_a)->data < (*stack_a)->next->next->data)
-			{
-				sa(stack_a);
-				printf("sa\n");
-				return;
-			}
-			// Case 1 3 2
-			if ((*stack_a)->data < (*stack_a)->next->next->data && (*stack_a)->next->data > (*stack_a)->next->next->data)
-			{
-				sa(stack_a);
-				ra(stack_a);
-				printf("sa\n");
-				printf("ra\n");
-				return;
-			}
-			// Case 2 3 1
-			if ((*stack_a)->data > (*stack_a)->next->next->data && (*stack_a)->next->data > (*stack_a)->data)
-			{
-				rra(stack_a);
-				printf("rra\n");
-				return;
-			}
-			// Case 3 2 1
-			if ((*stack_a)->data > (*stack_a)->next->data && (*stack_a)->next->data > (*stack_a)->next->next->data)
-			{
-				sa(stack_a);
-				rra(stack_a);
-				printf("sa\n");
-				printf("rra\n");
-				return;
-			}
-			pa(stack_a, stack_b);
-			printf("pa\n");
-		}
+		sort_size_four(stack_a, stack_b, size);
+	}
+	if (size == 5)
+	{
+		sort_size_five(stack_a, stack_b, size);
+	}
+	if (size > 5)
+	{
+		sort_size_other(stack_a, stack_b); 
 	}
 }
 
@@ -544,15 +707,15 @@ int main(int argc, char **argv)
 		i++;
 	}
 
-	int size = count_size(stack_a);
+	struct Node *stack_b = NULL;
 
-	struct Node *stack_b = NULL; // Initialize an array of 10 stack pointers, all NULL
-
-	//display(stack_a);
+	display(stack_a);
+	display(stack_b);
 
 	push_swap(&stack_a, &stack_b);
 
-	//display(stack_a);
+	display(stack_a);
+	display(stack_b);
 
 	free_stack(stack_a);
 	return 0;
