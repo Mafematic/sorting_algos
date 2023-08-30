@@ -1,7 +1,6 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 // ./ push_swap 2 1 3 6 5 8
 
 struct Node
@@ -326,7 +325,7 @@ void free_stack(struct Node *p)
 
 int find_max(struct Node *p)
 {
-	int max = INT32_MIN;
+	int max = p->data;
 	while (p != NULL)
 	{
 		if (p->data > max)
@@ -340,7 +339,7 @@ int find_max(struct Node *p)
 
 int find_min(struct Node *p)
 {
-	int min = INT32_MAX;
+	int min = p->data;
 	while (p != NULL)
 	{
 		if (p->data < min)
@@ -389,40 +388,12 @@ int check_if_sorted(struct Node *s)
 	return 1;
 }
 
-int check_if_reverse_sorted(struct Node *s)
-{
-	while (s != NULL && s->next != NULL)
-	{
-		if (s->next->data > s->data)
-		{
-			return 0;
-		}
-		s = s->next;
-	}
-	return 1;
-}
-
 int position_minimum(struct Node *p, int min)
 {
 	int index = 0;
 	while (p != NULL)
 	{
 		if (min == p->data)
-		{
-			return index;
-		}
-		index++;
-		p = p->next;
-	}
-	return -1;
-}
-
-int position_maximum(struct Node *p, int max)
-{
-	int index = 0;
-	while (p != NULL)
-	{
-		if (max == p->data)
 		{
 			return index;
 		}
@@ -510,153 +481,45 @@ void sort_size_four(struct Node **stack_a, struct Node **stack_b, int size)
 	printf("pa\n");
 }
 
-void sort_size_five(struct Node **stack_a, struct Node **stack_b, int size)
+int get_digit(int num, int position)
 {
-	int min = find_min(*stack_a);
-	int pos = position_minimum(*stack_a, min);
-	// printf("Min: %d\n", min);
-	// printf("Position: %d\n", pos);
-	if (pos == 3 || pos == 4)
+	// Return the digit at the given position (0-based)
+	// position = 0 for least significant digit, 1 for next, and so on.
+	for (int i = 0; i < position; i++)
 	{
-		while (1)
-		{
-			if ((*stack_a)->data == min)
-			{
-				pb(stack_a, stack_b);
-				printf("pb\n");
-				break;
-			}
-			rra(stack_a);
-			printf("rra\n");
-		}
+		num /= 10;
 	}
-	else
-	{
-		while (1)
-		{
-			if ((*stack_a)->data == min)
-			{
-				pb(stack_a, stack_b);
-				printf("pb\n");
-				break;
-			}
-			ra(stack_a);
-			printf("ra\n");
-		}
-	}
-	size--;
-	sort_size_four(stack_a, stack_b, size);
-	pa(stack_a, stack_b);
-	printf("pa\n");
+	return num % 10;
 }
 
-void sort_size_other(struct Node **stack_a, struct Node **stack_b)
+void radix(struct Node **sa, struct Node *sb[10])
 {
-	struct Node *a_first = NULL;
-	struct Node *a_second = NULL;
-	struct Node *a_last = NULL;
-	struct Node *temp_a = NULL;
+	int max = find_max(*sa);
+	int digits = count_digits(max);
 
-	struct Node *b_first = NULL;
-	struct Node *b_second = NULL;
-	struct Node *b_last = NULL;
-	struct Node *temp_b = NULL;
-
-	while (1)
+	for (int position = 0; position < digits; position++)
 	{
-		temp_a = *stack_a;
-		temp_b = *stack_b;
+		// printf("\nPosition: %d\n", position); // Debug
 
-		a_first = temp_a;
-		if (temp_a)
-			a_second = temp_a->next;
-		else
-			a_second = NULL;
+		// Distribute numbers into digit buckets (using stack sb)
+		while (*sa != NULL)
+		{
+			int number = pop(sa)->data;
+			int digit = get_digit(number, position);
+			printf("Distributing %d to bucket %d\n", number, digit); // Debug
+			push(&sb[digit], number);								 // Push onto sb (bucket stack)
+		}
 
-		b_first = temp_b;
-
-		if (temp_b)
-			b_second = temp_b->next;
-		else
-			b_second = NULL;
-
-		while (temp_a && temp_a->next)
+		// Collect numbers from buckets and push back to stack a
+		for (int i = 9; i >= 0; i--)
 		{
-			temp_a = temp_a->next;
+			while (sb[i] != NULL)
+			{
+				int number = pop(&sb[i])->data;
+				printf("Collecting %d from bucket %d\n", number, i); // Debug
+				push(sa, number);
+			}
 		}
-		a_last = temp_a;
-
-		while (temp_b && temp_b->next)
-		{
-			temp_b = temp_b->next;
-		}
-		b_last = temp_b;
-
-		int min = find_min(*stack_a);
-		int max = find_max(*stack_b);
-
-		// Exit condition - might need further refinement
-		if (((check_if_sorted(*stack_a) && check_if_reverse_sorted(*stack_b)) 
-		|| (check_if_sorted(*stack_a) && !temp_b)) && min > max 
-		&& a_first->data == min && b_first->data == max)
-		{
-			break;
-		}
-		if (b_first && b_last && b_first->data < b_last->data)
-		{
-			rb(stack_b);
-			printf("rb\n");
-			continue;
-		}
-		if (b_first && b_second && b_first->data < b_second->data)
-		{
-			sb(stack_b);
-			printf("sb\n");
-			continue;
-		}
-		if (a_first && a_last && a_first->data > a_last->data)
-		{
-			ra(stack_a);
-			printf("ra\n");
-			continue;
-		}
-		if (a_first && a_second && a_first->data > a_second->data)
-		{
-			sa(stack_a);
-			printf("sa\n");
-			continue;
-		}
-		if ((check_if_sorted(*stack_a))
-			&& (a_first && b_first && a_first->data > b_first->data))
-		{
-			pa(stack_a, stack_b);
-			printf("pa\n");
-			continue;
-		}
-		if ((check_if_reverse_sorted(*stack_b))
-			&& (a_first && a_second && a_first->data < a_second->data))
-		{
-			pb(stack_a, stack_b);
-			printf("pb\n");
-			continue;
-		}
-		if (a_first && b_first && a_first->data > b_first->data)
-		{
-			pa(stack_a, stack_b);
-			printf("pa\n");
-			continue;
-		}
-		if (a_first && a_second && a_first->data < a_second->data)
-		{
-			pb(stack_a, stack_b);
-			printf("pb\n");
-			continue;
-		}
-	}
-	while (*stack_b)
-	{
-		pa(stack_a, stack_b);
-		printf("pa\n");
 	}
 }
 
@@ -691,35 +554,87 @@ void push_swap(struct Node **stack_a, struct Node **stack_b)
 	}
 	if (size == 5)
 	{
-		sort_size_five(stack_a, stack_b, size);
+		int min = find_min(*stack_a);
+		int pos = position_minimum(*stack_a, min);
+		// printf("Min: %d\n", min);
+		// printf("Position: %d\n", pos);
+		if (pos == 3 || pos == 4)
+		{
+			while (1)
+			{
+				if ((*stack_a)->data == min)
+				{
+					pb(stack_a, stack_b);
+					printf("pb\n");
+					break;
+				}
+				rra(stack_a);
+				printf("rra\n");
+			}
+		}
+		else
+		{
+			while (1)
+			{
+				if ((*stack_a)->data == min)
+				{
+					pb(stack_a, stack_b);
+					printf("pb\n");
+					break;
+				}
+				ra(stack_a);
+				printf("ra\n");
+			}
+		}
+		size--;
+		sort_size_four(stack_a, stack_b, size);
+		pa(stack_a, stack_b);
+		printf("pa\n");
 	}
 	if (size > 5)
 	{
-		sort_size_other(stack_a, stack_b);
+		radix(stack_a, stack_b);
 	}
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
-	struct Node *stack_a = NULL;
-	struct Node *stack_b = NULL;
-
-	// Create a static stack, feel free to change these numbers
-	long numbers[] = {9, 1, 8, 10, 2, 6, 7, 4, 5 , 3}; // example numbers
-	int size = sizeof(numbers) / sizeof(numbers[0]);
-
-	for (int i = 0; i < size; i++)
+	if (argc == 1)
 	{
-		append(&stack_a, numbers[i]);
+		write(1, "Need more arguments\n", 19);
+		return 1;
+	}
+	struct Node *stack_a = NULL;
+	int error = 0;
+
+	long x;
+	int i = 1;
+
+	while (i < argc)
+	{
+		x = ft_atoi(argv[i], &error);
+		if (error)
+		{
+			write(1, "Wrong Argument\n", 15);
+			return 1;
+		}
+		append(&stack_a, x);
+		i++;
+	}
+
+	int size = count_size(stack_a);
+
+	struct Node *stack_b[10];
+	for (int i = 0; i < 10; i++)
+	{
+		stack_b[i] = NULL;
 	}
 
 	display(stack_a);
-	display(stack_b);
 
-	push_swap(&stack_a, &stack_b);
+	push_swap(&stack_a, stack_b);
 
 	display(stack_a);
-	display(stack_b);
 
 	free_stack(stack_a);
 	return 0;

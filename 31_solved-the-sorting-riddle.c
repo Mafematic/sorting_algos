@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 // ./ push_swap 2 1 3 6 5 8
 
 struct Node
@@ -325,7 +326,7 @@ void free_stack(struct Node *p)
 
 int find_max(struct Node *p)
 {
-	int max = p->data;
+	int max = INT32_MIN;
 	while (p != NULL)
 	{
 		if (p->data > max)
@@ -339,7 +340,7 @@ int find_max(struct Node *p)
 
 int find_min(struct Node *p)
 {
-	int min = p->data;
+	int min = INT32_MAX;
 	while (p != NULL)
 	{
 		if (p->data < min)
@@ -430,8 +431,6 @@ int position_maximum(struct Node *p, int max)
 	}
 	return -1;
 }
-
-
 
 void sort_size_three(struct Node **stack_a)
 {
@@ -593,12 +592,15 @@ void sort_size_other(struct Node **stack_a, struct Node **stack_b)
 		}
 		b_last = temp_b;
 
+		int min = find_min(*stack_a);
+		int max = find_max(*stack_b);
+
 		// Exit condition - might need further refinement
-		if ((check_if_sorted(*stack_a) && check_if_reverse_sorted(*stack_b)) ||
-			(check_if_sorted(*stack_a) && !temp_b))
+		if (((check_if_sorted(*stack_a) && check_if_reverse_sorted(*stack_b)) || (check_if_sorted(*stack_a) && !temp_b)) && min > max && a_first->data == min && b_first->data == max)
 		{
 			break;
 		}
+		
 		if (b_first && b_last && b_first->data < b_last->data)
 		{
 			rb(stack_b);
@@ -623,7 +625,13 @@ void sort_size_other(struct Node **stack_a, struct Node **stack_b)
 			printf("sa\n");
 			continue;
 		}
-		if (a_first && a_second && a_first->data < a_second->data)
+		if ((check_if_sorted(*stack_a)) && (a_first && b_first && a_first->data > b_first->data))
+		{
+			pa(stack_a, stack_b);
+			printf("pa\n");
+			continue;
+		}
+		if ((check_if_reverse_sorted(*stack_b)) && (a_first && a_second && a_first->data < a_second->data))
 		{
 			pb(stack_a, stack_b);
 			printf("pb\n");
@@ -633,6 +641,12 @@ void sort_size_other(struct Node **stack_a, struct Node **stack_b)
 		{
 			pa(stack_a, stack_b);
 			printf("pa\n");
+			continue;
+		}
+		if (a_first && a_second && a_first->data < a_second->data)
+		{
+			pb(stack_a, stack_b);
+			printf("pb\n");
 			continue;
 		}
 	}

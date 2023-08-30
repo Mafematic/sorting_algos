@@ -2,13 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-// ./ push_swap 2 1 3 6 5 8
 
 struct Node
 {
 	int data;
 	struct Node *next;
 };
+
+typedef struct DoublyLinkedList
+{
+	Node *head;
+	Node *tail;
+} DoublyLinkedList;
+
 
 static int ft_iswhitespace(char c)
 {
@@ -368,6 +374,10 @@ int count_digits(int max)
 int count_size(struct Node *a)
 {
 	int count = 0;
+
+	if (!a)
+		return 0; // if the list is empty return 0
+
 	while (a->next != NULL)
 	{
 		count++;
@@ -562,102 +572,7 @@ void sort_size_other(struct Node **stack_a, struct Node **stack_b)
 	struct Node *b_last = NULL;
 	struct Node *temp_b = NULL;
 
-	while (1)
-	{
-		temp_a = *stack_a;
-		temp_b = *stack_b;
-
-		a_first = temp_a;
-		if (temp_a)
-			a_second = temp_a->next;
-		else
-			a_second = NULL;
-
-		b_first = temp_b;
-
-		if (temp_b)
-			b_second = temp_b->next;
-		else
-			b_second = NULL;
-
-		while (temp_a && temp_a->next)
-		{
-			temp_a = temp_a->next;
-		}
-		a_last = temp_a;
-
-		while (temp_b && temp_b->next)
-		{
-			temp_b = temp_b->next;
-		}
-		b_last = temp_b;
-
-		int min = find_min(*stack_a);
-		int max = find_max(*stack_b);
-
-		// Exit condition - might need further refinement
-		if (((check_if_sorted(*stack_a) && check_if_reverse_sorted(*stack_b)) 
-		|| (check_if_sorted(*stack_a) && !temp_b)) && min > max 
-		&& a_first->data == min && b_first->data == max)
-		{
-			break;
-		}
-		if (b_first && b_last && b_first->data < b_last->data)
-		{
-			rb(stack_b);
-			printf("rb\n");
-			continue;
-		}
-		if (b_first && b_second && b_first->data < b_second->data)
-		{
-			sb(stack_b);
-			printf("sb\n");
-			continue;
-		}
-		if (a_first && a_last && a_first->data > a_last->data)
-		{
-			ra(stack_a);
-			printf("ra\n");
-			continue;
-		}
-		if (a_first && a_second && a_first->data > a_second->data)
-		{
-			sa(stack_a);
-			printf("sa\n");
-			continue;
-		}
-		if ((check_if_sorted(*stack_a))
-			&& (a_first && b_first && a_first->data > b_first->data))
-		{
-			pa(stack_a, stack_b);
-			printf("pa\n");
-			continue;
-		}
-		if ((check_if_reverse_sorted(*stack_b))
-			&& (a_first && a_second && a_first->data < a_second->data))
-		{
-			pb(stack_a, stack_b);
-			printf("pb\n");
-			continue;
-		}
-		if (a_first && b_first && a_first->data > b_first->data)
-		{
-			pa(stack_a, stack_b);
-			printf("pa\n");
-			continue;
-		}
-		if (a_first && a_second && a_first->data < a_second->data)
-		{
-			pb(stack_a, stack_b);
-			printf("pb\n");
-			continue;
-		}
-	}
-	while (*stack_b)
-	{
-		pa(stack_a, stack_b);
-		printf("pa\n");
-	}
+	
 }
 
 void push_swap(struct Node **stack_a, struct Node **stack_b)
@@ -705,7 +620,7 @@ int main(void)
 	struct Node *stack_b = NULL;
 
 	// Create a static stack, feel free to change these numbers
-	long numbers[] = {9, 1, 8, 10, 2, 6, 7, 4, 5 , 3}; // example numbers
+	long numbers[] = {6, 5, 8, 9, 14, 13}; // example numbers
 	int size = sizeof(numbers) / sizeof(numbers[0]);
 
 	for (int i = 0; i < size; i++)

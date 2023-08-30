@@ -368,6 +368,10 @@ int count_digits(int max)
 int count_size(struct Node *a)
 {
 	int count = 0;
+
+	if (!a)
+		return 0; // if the list is empty return 0
+
 	while (a->next != NULL)
 	{
 		count++;
@@ -562,6 +566,8 @@ void sort_size_other(struct Node **stack_a, struct Node **stack_b)
 	struct Node *b_last = NULL;
 	struct Node *temp_b = NULL;
 
+	int flag = 0;
+
 	while (1)
 	{
 		temp_a = *stack_a;
@@ -592,64 +598,125 @@ void sort_size_other(struct Node **stack_a, struct Node **stack_b)
 		}
 		b_last = temp_b;
 
-		int min = find_min(*stack_a);
-		int max = find_max(*stack_b);
+		int min_a = find_min(*stack_a);
+		int max_a = find_max(*stack_a); 
+		int max_b = find_max(*stack_b);
 
 		// Exit condition - might need further refinement
-		if (((check_if_sorted(*stack_a) && check_if_reverse_sorted(*stack_b)) 
-		|| (check_if_sorted(*stack_a) && !temp_b)) && min > max 
-		&& a_first->data == min && b_first->data == max)
+		if (((check_if_sorted(*stack_a) && check_if_reverse_sorted(*stack_b)) || (check_if_sorted(*stack_a) && !temp_b)) && min_a > max_b && a_first->data == min_a && b_first->data == max_b)
 		{
 			break;
 		}
-		if (b_first && b_last && b_first->data < b_last->data)
+		// ss
+		if (b_first && b_second && a_first && a_second 
+			&& a_first->data > a_second->data && a_first->data < a_last->data 
+			&& b_first->data < b_second->data && b_first->data > b_last->data)
+		{
+			ss(stack_a, stack_b);
+			printf("ss\n");
+			continue;
+		}
+
+		// 
+		if (a_first && a_second && b_first && a_second->data > a_first->data
+			&& a_second->data > a_last->data && b_first->data < a_last->data)
+			{
+				sa(stack_a);
+				printf("sa\n");
+				ra(stack_a);
+				printf("ra\n");
+				continue;
+			}
+
+			
+		// rb
+		if (b_first && b_second && b_first->data < b_second->data && b_first->data < b_last->data)
 		{
 			rb(stack_b);
 			printf("rb\n");
 			continue;
 		}
-		if (b_first && b_second && b_first->data < b_second->data)
-		{
-			sb(stack_b);
-			printf("sb\n");
-			continue;
-		}
-		if (a_first && a_last && a_first->data > a_last->data)
-		{
-			ra(stack_a);
-			printf("ra\n");
-			continue;
-		}
-		if (a_first && a_second && a_first->data > a_second->data)
+		// sa
+		if (a_first && a_second && b_first && b_second && a_first->data > a_second->data && a_first->data < a_last->data && a_first->data > b_last->data)
 		{
 			sa(stack_a);
 			printf("sa\n");
 			continue;
 		}
-		if ((check_if_sorted(*stack_a))
-			&& (a_first && b_first && a_first->data > b_first->data))
-		{
-			pa(stack_a, stack_b);
-			printf("pa\n");
-			continue;
-		}
-		if ((check_if_reverse_sorted(*stack_b))
-			&& (a_first && a_second && a_first->data < a_second->data))
+		// pb
+		if (a_first && a_second && b_first && b_last 
+			&& a_first->data < b_last ->data)
 		{
 			pb(stack_a, stack_b);
 			printf("pb\n");
 			continue;
 		}
-		if (a_first && b_first && a_first->data > b_first->data)
+		if (a_first && a_second && b_first && b_second 
+			&& a_first->data < a_second->data && a_first->data < a_last->data 
+			&& a_first->data < b_first->data && a_first->data > b_second->data)
+		{
+			pb(stack_a, stack_b);
+			printf("pb\n");
+			continue;
+		}
+		if (a_first && a_second && b_first 
+			&& a_first->data < a_second->data && a_first->data < a_last->data 
+			&& a_first->data > b_first->data)
+		{
+			pb(stack_a, stack_b);
+			printf("pb\n");
+			continue;
+		}
+		if ((count_size(*stack_b) <= 3) && a_first && a_second 
+			&& a_first->data < a_second->data && a_first->data < a_last->data)
+		{
+			pb(stack_a, stack_b);
+			printf("pb\n");
+			continue;
+		}
+		if (a_first && a_second && b_first && max_a != a_first->data
+			&& a_first->data > a_second->data && a_first->data > b_first->data)
+		{
+			pb(stack_a, stack_b);
+			printf("pb\n");
+			continue;
+		}
+		// sa
+		if (a_first && a_second && a_first->data > a_second->data && a_first->data < a_last->data)
+		{
+			sa(stack_a);
+			printf("sa\n");
+			continue;
+		}
+		// ra
+		if (a_first && a_second && b_first && b_second 
+			&& a_first->data < a_second->data && a_first->data < a_last->data
+			&& a_first->data < b_first->data && a_first->data < b_second->data && a_first->data > b_last->data)
+		{
+			ra(stack_a);
+			printf("ra\n");
+			continue;
+		}
+		// rra
+		if (a_first && a_second && b_first
+			&& a_last->data < a_first->data && a_last->data > b_first->data)
+		{
+			rra(stack_a);
+			printf("rra\n");
+			continue;
+		}
+		// pa
+		if (b_first && b_second && a_first 
+			&& b_first->data > b_second->data && b_first->data < a_first->data)
 		{
 			pa(stack_a, stack_b);
 			printf("pa\n");
 			continue;
 		}
-		if (a_first && a_second && a_first->data < a_second->data)
+		else 
 		{
-			pb(stack_a, stack_b);
-			printf("pb\n");
+			ra(stack_a);
+			printf("ra\n");
 			continue;
 		}
 	}
@@ -705,7 +772,7 @@ int main(void)
 	struct Node *stack_b = NULL;
 
 	// Create a static stack, feel free to change these numbers
-	long numbers[] = {9, 1, 8, 10, 2, 6, 7, 4, 5 , 3}; // example numbers
+	long numbers[] = {38, 11, 83, 46, 97, 8, 90, 4, 75, 60, 45, 17, 42, 57, 87, 24, 78, 84, 99, 5, 85, 48, 47, 26, 70, 39, 73, 88, 9, 63}; // example numbers
 	int size = sizeof(numbers) / sizeof(numbers[0]);
 
 	for (int i = 0; i < size; i++)
